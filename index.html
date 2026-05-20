@@ -1,1 +1,695 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>База данных Аптека</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(32, 201, 151, 0.2), transparent 34%),
+                linear-gradient(135deg, #ecfdf5 0%, #f8fffb 44%, #e8f7ff 100%);
+            color: #17352d;
+        }
+
+        header {
+            background: linear-gradient(135deg, #047857 0%, #0f766e 45%, #0e7490 100%);
+            color: white;
+            padding: 34px 46px;
+            box-shadow: 0 8px 28px rgba(4, 120, 87, 0.22);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::after {
+            content: "+";
+            position: absolute;
+            right: 52px;
+            top: 10px;
+            font-size: 120px;
+            font-weight: 700;
+            line-height: 1;
+            opacity: 0.16;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 34px;
+            letter-spacing: 0.2px;
+        }
+
+        header p {
+            margin: 10px 0 0;
+            font-size: 16px;
+            opacity: 0.92;
+        }
+
+        main {
+            padding: 34px 42px;
+        }
+
+        section {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(16, 185, 129, 0.16);
+            border-radius: 22px;
+            padding: 26px;
+            margin-bottom: 28px;
+            box-shadow: 0 12px 34px rgba(15, 118, 110, 0.11);
+        }
+
+        h2 {
+            margin: 0 0 22px;
+            color: #065f46;
+            font-size: 25px;
+        }
+
+        h3 {
+            margin: 24px 0 12px;
+            color: #134e4a;
+        }
+
+        form {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        label {
+            font-weight: 700;
+            color: #134e4a;
+        }
+
+        select,
+        button {
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 15px;
+        }
+
+        select {
+            min-width: 410px;
+            border: 1px solid #99f6e4;
+            background: #ffffff;
+            color: #17352d;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.14);
+        }
+
+        button {
+            background: linear-gradient(135deg, #10b981, #0f766e);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.26);
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #059669, #0e7490);
+            transform: translateY(-1px);
+        }
+
+        pre {
+            background: #f0fdfa;
+            color: #0f3d35;
+            padding: 17px;
+            border-radius: 14px;
+            overflow-x: auto;
+            border: 1px solid #ccfbf1;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message {
+            margin-top: 16px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: #dcfce7;
+            color: #166534;
+            font-weight: 700;
+            border: 1px solid #bbf7d0;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid #d1fae5;
+            margin-top: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 12px 13px;
+            text-align: left;
+            border-bottom: 1px solid #e2f7ef;
+            border-right: 1px solid #e2f7ef;
+        }
+
+        th {
+            background: #d1fae5;
+            color: #064e3b;
+            font-weight: 800;
+        }
+
+        tr:nth-child(even) {
+            background: #f7fffb;
+        }
+
+        tr:hover {
+            background: #ecfdf5;
+        }
+
+        td:last-child,
+        th:last-child {
+            border-right: none;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #bbf7d0;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 24px rgba(5, 150, 105, 0.1);
+        }
+
+        .card span {
+            display: block;
+            color: #047857;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 8px;
+        }
+
+        .card strong {
+            display: block;
+            color: #064e3b;
+            font-size: 24px;
+        }
+
+        .note {
+            margin-top: 14px;
+            color: #0f766e;
+            font-size: 14px;
+        }
+
+        @media (max-width: 900px) {
+            main {
+                padding: 22px;
+            }
+
+            header {
+                padding: 28px 26px;
+            }
+
+            select {
+                min-width: 100%;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>База данных «Аптека»</h1>
+    <p>Демонстрационная версия сайта для лабораторной работы по предмету «Базы данных и экспертные системы»</p>
+</header>
+
+<main>
+    <div class="cards">
+        <div class="card">
+            <span>Раздел</span>
+            <strong>Лекарства</strong>
+        </div>
+
+        <div class="card">
+            <span>Раздел</span>
+            <strong>Продажи</strong>
+        </div>
+
+        <div class="card">
+            <span>Раздел</span>
+            <strong>Поставщики</strong>
+        </div>
+    </div>
+
+    <section>
+        <h2>Выполнение SQL-запросов</h2>
+
+        <form id="queryForm">
+            <label for="query_id">Выберите запрос:</label>
+
+            <select name="query_id" id="query_id"></select>
+
+            <button type="submit">Выполнить</button>
+        </form>
+
+        <h3>SQL-запрос</h3>
+        <pre id="sqlText"></pre>
+
+        <div id="message" class="message" style="display: none;"></div>
+
+        <div id="resultBlock" style="display: none;">
+            <h3>Результат выполнения</h3>
+            <div id="resultTable"></div>
+        </div>
+
+        <p class="note">
+            Это статическая GitHub Pages-версия. Она имитирует выполнение SQL-запросов на стороне браузера.
+            Реальная версия с PHP и MySQL запускается локально через OSPanel.
+        </p>
+    </section>
+
+    <section>
+        <h2>Лекарства аптеки</h2>
+        <div id="medicinesTable"></div>
+    </section>
+
+    <section>
+        <h2>Продажи аптеки</h2>
+        <div id="salesTable"></div>
+    </section>
+</main>
+
+<script>
+    const clients = [
+        { client_id: 1, full_name: 'Иванов Алексей Петрович', phone: '+79001112233' },
+        { client_id: 2, full_name: 'Петрова Мария Сергеевна', phone: '+79002223344' },
+        { client_id: 3, full_name: 'Сидоров Дмитрий Андреевич', phone: '+79003334455' },
+        { client_id: 4, full_name: 'Кузнецова Анна Игоревна', phone: '+79004445566' },
+        { client_id: 5, full_name: 'Смирнов Илья Олегович', phone: '+79005556677' }
+    ];
+
+    const suppliers = [
+        { supplier_id: 1, supplier_name: 'ФармПоставка', inn: '3661000001', address: 'г. Воронеж, ул. Ленина, 10' },
+        { supplier_id: 2, supplier_name: 'МедСнаб', inn: '3661000002', address: 'г. Москва, ул. Аптечная, 15' },
+        { supplier_id: 3, supplier_name: 'Здоровье Плюс', inn: '3661000003', address: 'г. Санкт-Петербург, Невский пр., 22' }
+    ];
+
+    const medicineTypes = [
+        { type_id: 1, type_name: 'Таблетки' },
+        { type_id: 2, type_name: 'Капсулы' },
+        { type_id: 3, type_name: 'Сироп' },
+        { type_id: 4, type_name: 'Мазь' }
+    ];
+
+    let medicines = [
+        { medicine_id: 1, medicine_name: 'Парацетамол', manufacturer: 'Фармстандарт', supplier_id: 1, type_id: 1, price: 120.00 },
+        { medicine_id: 2, medicine_name: 'Ибупрофен', manufacturer: 'Озон', supplier_id: 1, type_id: 1, price: 180.00 },
+        { medicine_id: 3, medicine_name: 'Амоксициллин', manufacturer: 'Биохимик', supplier_id: 2, type_id: 2, price: 420.00 },
+        { medicine_id: 4, medicine_name: 'Лазолван', manufacturer: 'Boehringer', supplier_id: 3, type_id: 3, price: 360.00 },
+        { medicine_id: 5, medicine_name: 'Цинковая мазь', manufacturer: 'Тульская ФФ', supplier_id: 2, type_id: 4, price: 95.00 },
+        { medicine_id: 6, medicine_name: 'Нурофен', manufacturer: 'Reckitt', supplier_id: 3, type_id: 1, price: 510.00 }
+    ];
+
+    const sales = [
+        { sale_id: 1, sale_number: 'S-0001', sale_date: '2025-01-10', client_id: 1 },
+        { sale_id: 2, sale_number: 'S-0002', sale_date: '2025-01-12', client_id: 2 },
+        { sale_id: 3, sale_number: 'S-0003', sale_date: '2025-01-15', client_id: 3 }
+    ];
+
+    const saleItems = [
+        { item_id: 1, sale_id: 1, medicine_id: 1, quantity: 2 },
+        { item_id: 2, sale_id: 1, medicine_id: 4, quantity: 1 },
+        { item_id: 3, sale_id: 2, medicine_id: 3, quantity: 1 },
+        { item_id: 4, sale_id: 2, medicine_id: 5, quantity: 3 },
+        { item_id: 5, sale_id: 3, medicine_id: 6, quantity: 1 }
+    ];
+
+    const queries = {
+        1: {
+            title: 'Вывод всех клиентов',
+            sql: 'Select * From clients',
+            run: () => clients
+        },
+        2: {
+            title: 'Вывод всех лекарств',
+            sql: 'Select * From medicines',
+            run: () => medicines
+        },
+        3: {
+            title: 'Лекарства с поставщиками и типами',
+            sql: 'Select medicines.medicine_name, medicines.manufacturer, suppliers.supplier_name, medicine_types.type_name, medicines.price From medicines Join suppliers On medicines.supplier_id = suppliers.supplier_id Join medicine_types On medicines.type_id = medicine_types.type_id',
+            run: () => medicines.map(medicine => ({
+                medicine_name: medicine.medicine_name,
+                manufacturer: medicine.manufacturer,
+                supplier_name: getSupplier(medicine.supplier_id).supplier_name,
+                type_name: getType(medicine.type_id).type_name,
+                price: medicine.price.toFixed(2)
+            }))
+        },
+        4: {
+            title: 'Продажи клиентов',
+            sql: 'Select clients.full_name, clients.phone, sales.sale_number, sales.sale_date From sales Join clients On sales.client_id = clients.client_id',
+            run: () => sales.map(sale => ({
+                full_name: getClient(sale.client_id).full_name,
+                phone: getClient(sale.client_id).phone,
+                sale_number: sale.sale_number,
+                sale_date: sale.sale_date
+            }))
+        },
+        5: {
+            title: 'Состав продаж',
+            sql: 'Select sales.sale_number, sales.sale_date, clients.full_name, medicines.medicine_name, medicines.price, sale_items.quantity, medicines.price * sale_items.quantity As total_price From sale_items Join sales On sale_items.sale_id = sales.sale_id Join clients On sales.client_id = clients.client_id Join medicines On sale_items.medicine_id = medicines.medicine_id',
+            run: () => saleItems.map(item => {
+                const sale = getSale(item.sale_id);
+                const client = getClient(sale.client_id);
+                const medicine = getMedicine(item.medicine_id);
+
+                return {
+                    sale_number: sale.sale_number,
+                    sale_date: sale.sale_date,
+                    full_name: client.full_name,
+                    medicine_name: medicine.medicine_name,
+                    price: medicine.price.toFixed(2),
+                    quantity: item.quantity,
+                    total_price: (medicine.price * item.quantity).toFixed(2)
+                };
+            })
+        },
+        6: {
+            title: 'Количество лекарств по типам',
+            sql: 'Select medicine_types.type_name, Count(medicines.medicine_id) As medicine_count From medicine_types Left Join medicines On medicine_types.type_id = medicines.type_id Group By medicine_types.type_name',
+            run: () => medicineTypes.map(type => ({
+                type_name: type.type_name,
+                medicine_count: medicines.filter(medicine => medicine.type_id === type.type_id).length
+            }))
+        },
+        7: {
+            title: 'Количество лекарств от каждого поставщика',
+            sql: 'Select suppliers.supplier_name, Count(medicines.medicine_id) As supplied_medicines From suppliers Left Join medicines On suppliers.supplier_id = medicines.supplier_id Group By suppliers.supplier_name',
+            run: () => suppliers.map(supplier => ({
+                supplier_name: supplier.supplier_name,
+                supplied_medicines: medicines.filter(medicine => medicine.supplier_id === supplier.supplier_id).length
+            }))
+        },
+        8: {
+            title: 'Сумма каждой продажи',
+            sql: 'Select sales.sale_number, Sum(medicines.price * sale_items.quantity) As sale_sum From sale_items Join sales On sale_items.sale_id = sales.sale_id Join medicines On sale_items.medicine_id = medicines.medicine_id Group By sales.sale_number',
+            run: () => sales.map(sale => ({
+                sale_number: sale.sale_number,
+                sale_sum: saleItems
+                    .filter(item => item.sale_id === sale.sale_id)
+                    .reduce((sum, item) => sum + getMedicine(item.medicine_id).price * item.quantity, 0)
+                    .toFixed(2)
+            }))
+        },
+        9: {
+            title: 'Лекарства дороже 300',
+            sql: 'Select medicine_name, manufacturer, price From medicines Where price > 300',
+            run: () => medicines
+                .filter(medicine => medicine.price > 300)
+                .map(medicine => ({
+                    medicine_name: medicine.medicine_name,
+                    manufacturer: medicine.manufacturer,
+                    price: medicine.price.toFixed(2)
+                }))
+        },
+        10: {
+            title: 'Самое дорогое лекарство',
+            sql: 'Select medicine_name, manufacturer, price From medicines Where price = (Select Max(price) From medicines)',
+            run: () => {
+                const maxPrice = Math.max(...medicines.map(medicine => medicine.price));
+                return medicines
+                    .filter(medicine => medicine.price === maxPrice)
+                    .map(medicine => ({
+                        medicine_name: medicine.medicine_name,
+                        manufacturer: medicine.manufacturer,
+                        price: medicine.price.toFixed(2)
+                    }));
+            }
+        },
+        11: {
+            title: 'Самое дешёвое лекарство',
+            sql: 'Select medicine_name, manufacturer, price From medicines Where price = (Select Min(price) From medicines)',
+            run: () => {
+                const minPrice = Math.min(...medicines.map(medicine => medicine.price));
+                return medicines
+                    .filter(medicine => medicine.price === minPrice)
+                    .map(medicine => ({
+                        medicine_name: medicine.medicine_name,
+                        manufacturer: medicine.manufacturer,
+                        price: medicine.price.toFixed(2)
+                    }));
+            }
+        },
+        12: {
+            title: 'Средняя цена лекарств',
+            sql: 'Select Avg(price) As avg_price From medicines',
+            run: () => [{
+                avg_price: (medicines.reduce((sum, medicine) => sum + medicine.price, 0) / medicines.length).toFixed(2)
+            }]
+        },
+        13: {
+            title: 'Количество клиентов',
+            sql: 'Select Count(*) As clients_count From clients',
+            run: () => [{
+                clients_count: clients.length
+            }]
+        },
+        14: {
+            title: 'Общая выручка аптеки',
+            sql: 'Select Sum(medicines.price * sale_items.quantity) As total_revenue From sale_items Join medicines On sale_items.medicine_id = medicines.medicine_id',
+            run: () => [{
+                total_revenue: saleItems
+                    .reduce((sum, item) => sum + getMedicine(item.medicine_id).price * item.quantity, 0)
+                    .toFixed(2)
+            }]
+        },
+        15: {
+            title: 'Продажи конкретного клиента',
+            sql: "Select clients.full_name, sales.sale_number, sales.sale_date From sales Join clients On sales.client_id = clients.client_id Where clients.full_name = 'Иванов Алексей Петрович'",
+            run: () => sales
+                .filter(sale => getClient(sale.client_id).full_name === 'Иванов Алексей Петрович')
+                .map(sale => ({
+                    full_name: getClient(sale.client_id).full_name,
+                    sale_number: sale.sale_number,
+                    sale_date: sale.sale_date
+                }))
+        },
+        16: {
+            title: 'Лекарства дороже средней цены',
+            sql: 'Select medicine_name, manufacturer, price From medicines Where price > (Select Avg(price) From medicines)',
+            run: () => {
+                const avg = medicines.reduce((sum, medicine) => sum + medicine.price, 0) / medicines.length;
+                return medicines
+                    .filter(medicine => medicine.price > avg)
+                    .map(medicine => ({
+                        medicine_name: medicine.medicine_name,
+                        manufacturer: medicine.manufacturer,
+                        price: medicine.price.toFixed(2)
+                    }));
+            }
+        },
+        17: {
+            title: 'Добавление нового клиента',
+            sql: "Insert Into clients (full_name, phone) Values ('Тестов Павел Игоревич', '+79007770000')",
+            run: () => {
+                clients.push({
+                    client_id: clients.length + 1,
+                    full_name: 'Тестов Павел Игоревич',
+                    phone: '+79007770000'
+                });
+
+                return [{ result: 'Запрос успешно выполнен. Добавлена 1 строка.' }];
+            }
+        },
+        18: {
+            title: 'Изменение телефона клиента',
+            sql: "Update clients Set phone = '+79005550000' Where client_id = 1",
+            run: () => {
+                const client = getClient(1);
+                client.phone = '+79005550000';
+
+                return [{ result: 'Запрос успешно выполнен. Изменена 1 строка.' }];
+            }
+        },
+        19: {
+            title: 'Добавление тестового лекарства',
+            sql: "Insert Into medicines (medicine_name, manufacturer, supplier_id, type_id, price) Values ('Тестовое лекарство', 'Тестовый производитель', 1, 1, 150.00)",
+            run: () => {
+                medicines.push({
+                    medicine_id: medicines.length + 1,
+                    medicine_name: 'Тестовое лекарство',
+                    manufacturer: 'Тестовый производитель',
+                    supplier_id: 1,
+                    type_id: 1,
+                    price: 150.00
+                });
+
+                return [{ result: 'Запрос успешно выполнен. Добавлена 1 строка.' }];
+            }
+        },
+        20: {
+            title: 'Удаление тестового лекарства',
+            sql: "Delete From medicines Where medicine_name = 'Тестовое лекарство'",
+            run: () => {
+                const before = medicines.length;
+                medicines = medicines.filter(medicine => medicine.medicine_name !== 'Тестовое лекарство');
+                const deleted = before - medicines.length;
+
+                return [{ result: `Запрос успешно выполнен. Удалено строк: ${deleted}.` }];
+            }
+        }
+    };
+
+    function getClient(id) {
+        return clients.find(client => client.client_id === id);
+    }
+
+    function getSupplier(id) {
+        return suppliers.find(supplier => supplier.supplier_id === id);
+    }
+
+    function getType(id) {
+        return medicineTypes.find(type => type.type_id === id);
+    }
+
+    function getMedicine(id) {
+        return medicines.find(medicine => medicine.medicine_id === id);
+    }
+
+    function getSale(id) {
+        return sales.find(sale => sale.sale_id === id);
+    }
+
+    function renderTable(rows) {
+        if (!rows || rows.length === 0) {
+            return '<div class="message">Нет данных для вывода.</div>';
+        }
+
+        const columns = Object.keys(rows[0]);
+
+        let html = '<div class="table-wrap"><table><tr>';
+
+        columns.forEach(column => {
+            html += `<th>${escapeHtml(column)}</th>`;
+        });
+
+        html += '</tr>';
+
+        rows.forEach(row => {
+            html += '<tr>';
+
+            columns.forEach(column => {
+                html += `<td>${escapeHtml(String(row[column]))}</td>`;
+            });
+
+            html += '</tr>';
+        });
+
+        html += '</table></div>';
+
+        return html;
+    }
+
+    function escapeHtml(value) {
+        return value
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    function getMainMedicinesTable() {
+        return medicines.map(medicine => ({
+            medicine_id: medicine.medicine_id,
+            medicine_name: medicine.medicine_name,
+            manufacturer: medicine.manufacturer,
+            supplier_name: getSupplier(medicine.supplier_id).supplier_name,
+            type_name: getType(medicine.type_id).type_name,
+            price: medicine.price.toFixed(2)
+        }));
+    }
+
+    function getMainSalesTable() {
+        return saleItems.map(item => {
+            const sale = getSale(item.sale_id);
+            const client = getClient(sale.client_id);
+            const medicine = getMedicine(item.medicine_id);
+
+            return {
+                sale_number: sale.sale_number,
+                sale_date: sale.sale_date,
+                full_name: client.full_name,
+                medicine_name: medicine.medicine_name,
+                quantity: item.quantity,
+                total_price: (medicine.price * item.quantity).toFixed(2)
+            };
+        });
+    }
+
+    function refreshMainTables() {
+        document.getElementById('medicinesTable').innerHTML = renderTable(getMainMedicinesTable());
+        document.getElementById('salesTable').innerHTML = renderTable(getMainSalesTable());
+    }
+
+    function initSelect() {
+        const select = document.getElementById('query_id');
+
+        Object.entries(queries).forEach(([id, query]) => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = `${id}. ${query.title}`;
+            select.appendChild(option);
+        });
+
+        document.getElementById('sqlText').textContent = queries[1].sql;
+    }
+
+    document.getElementById('queryForm').addEventListener('submit', event => {
+        event.preventDefault();
+
+        const id = document.getElementById('query_id').value;
+        const query = queries[id];
+        const rows = query.run();
+
+        document.getElementById('sqlText').textContent = query.sql;
+        document.getElementById('message').style.display = 'block';
+        document.getElementById('message').textContent = 'Запрос выполнен в демонстрационном режиме.';
+        document.getElementById('resultBlock').style.display = 'block';
+        document.getElementById('resultTable').innerHTML = renderTable(rows);
+
+        refreshMainTables();
+    });
+
+    document.getElementById('query_id').addEventListener('change', event => {
+        const id = event.target.value;
+        document.getElementById('sqlText').textContent = queries[id].sql;
+    });
+
+    initSelect();
+    refreshMainTables();
+</script>
+</body>
+</html>
